@@ -1,37 +1,44 @@
 import java.io.*;
 
 public class ReadModLine {
-	private BufferedInputStream in;
-    private String[] nextLine;
-    private boolean endOfFile;
-    private String[] arrayToBeReturned;
+	private BufferedInputStream fileIn;
+	private int endOfLine = -1;
     
-	public ReadModLine(BufferedInputStream file1) throws java.io.IOException{
-		in = file1;
-		endOfFile=false;
+	public ReadModLine(BufferedInputStream fileIn) throws java.io.IOException{
+		this.fileIn = fileIn;
 	}
-
+	
 	public String[] readLine() throws java.io.IOException{
-		int ch;
-		char nextChar;
-		StringBuffer buf = new StringBuffer();
-		arrayToBeReturned = new String[500];
-		ch = in.read();
-		int i=0;
-		nextChar = Character.toUpperCase((char)ch);
-		while(i<500){
-			while(nextChar!='X'&&ch!=-1){
-				buf.append(nextChar);
-				ch = in.read();
-				nextChar = Character.toUpperCase((char)ch);
-			}
-			arrayToBeReturned[i]=buf.toString();
-			
-			ch = in.read();
-			nextChar = Character.toUpperCase((char)ch);
-			i++;
-			buf= new StringBuffer();
+		String[] arrayOfLine = new String[50];
+		char[] arrayOfWord = new char[256];
+		int i = 0;
+		int j=0;
+		char ch = (char) fileIn.read(); 
+		if(endOfLine==(int)ch){
+			return null;
 		}
-		return arrayToBeReturned;
+		while(ch==' '){
+			ch=(char)fileIn.read();
+		}
+		while(ch!=System.lineSeparator().charAt(0)){
+			if(ch==' '||ch=='+'){
+				arrayOfLine[i] = new String(arrayOfWord);
+				System.out.println("Added word: " + arrayOfLine[i]);
+				i++;
+				j=0;
+				arrayOfWord = new char[256];
+			}
+			else{
+				arrayOfWord[j] = ch;
+				j++;
+			}
+			ch = (char)fileIn.read();
+		}
+		arrayOfLine[i] = new String(arrayOfWord);
+		System.out.println("Added word: " + arrayOfLine[i]);
+		ch = (char)fileIn.read();
+		return arrayOfLine;
 	}
+	
+	
 }

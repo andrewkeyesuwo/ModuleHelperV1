@@ -7,52 +7,47 @@ public class Main {
 		BufferedInputStream mods = null;
 		try{
 			//Open a buffered input stream for the mods list
-			mods  = new BufferedInputStream(new FileInputStream("C:\\Users\\Andrew\\1027B\\WesternModuleSearcher\\src\\ModulesCompSci.txt"));
+			mods  = new BufferedInputStream(new FileInputStream("C:\\Users\\Andrew\\1027B\\ModuleHelper\\src\\ModulesCompSci.txt"));
 			
-			//feed mods to the readLine class
+			//Read the module
 			ReadModLine modslist = new ReadModLine(mods);
-			String[] myList = modslist.readLine();
-			for(int i=0;i<myList.length-1;i++){
-				if(myList[i]!=null){
-					myList[i]=myList[i].replace(" ", "");
-					myList[i]=myList[i].replace("-", " ");
+			String[] moduleString = modslist.readLine();
+			//Create and add module
+			Module moduleToAdd = new Module(moduleString[0]);
+			moduleToAdd.setGradeRequirement(Float.parseFloat(moduleString[1]));
+			moduleToAdd.setminGradeRequirement(Float.parseFloat(moduleString[2]));
+			int i=3;
+			while(i<10){
+				//Check whether or not it is a credit, if it is then begin adding the course
+				System.out.println(moduleString[i].charAt(0));
+				if(moduleString[i].charAt(0)>='0'&&moduleString[i].charAt(0)<='9'){
+					float credits = Float.parseFloat(moduleString[i]);
+					System.out.println("Number of credits = "+moduleString[i]);
+					i++;
+					//If the course is conditional then start a conditionalcourse until another number is ran into
+					if(!(moduleString[i+1].charAt(0)>='0'&&moduleString[i+1].charAt(0)<='9')){
+						System.out.println("Adding a conditional course: "+ moduleString[i]);
+						ConditionalCourse courseToAdd = new ConditionalCourse(new Course(moduleString[i],credits));
+						i++;
+						while(!(moduleString[i].charAt(0)>='0'&&moduleString[i].charAt(0)<='9')){
+							courseToAdd.addCourse(new Course(moduleString[i], credits));
+							System.out.println("Adding another peice of the conditional course: "+ moduleString[i]);
+							i++;
+						}
+						moduleToAdd.addConditionalPreReq(courseToAdd);
+					}
+					//Else if the course is not conditional then enter a regular course
+					else{
+						System.out.println("Adding a regular course" + moduleString[i]);
+						Course courseToAdd = new Course(moduleString[i], credits);
+						moduleToAdd.setPrereq(courseToAdd);
+						i++;
+					}
 				}
 			}
-			
-			Module[] myModArray = new Module[10];
-			int i=0;
-			int j=0;
-			while(i<50){
-				Module myMod = new Module(myList[i]);
-				i++;
-				myMod.setGradeRequirement(new Float(myList[i]));
-				i++;
-				myMod.setminGradeRequirement(new Float(myList[i]));
-				i++;
-				while(!(myList[i].substring(0, 1).equals("*"))){
-					Course addMyCourse = new Course(myList[i+1],(new Float(myList[i])));
-					myMod.setPrereq(addMyCourse);
-					i++;
-					i++;
-				}
-				myModArray[j]=myMod;
-				j++;
-			}
-			Module myTestMod;
-			for(int q=0;q<5;q++){
-				myTestMod = myModArray[q];
-			}
-			
-			//Have the student Enter there name
-			System.out.println("Please enter your name:\n");
-			
-			
-			//Have the student enter there class, class average, and number of credits one at a time 
-			
-			//Spit out all the possible modules that I can do
 		}
-		finally{
-			mods.close();
+		catch(Exception e){
+			System.out.println(e.getMessage());
 		}
 	}
 

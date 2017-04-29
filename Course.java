@@ -1,23 +1,20 @@
+import java.util.LinkedList;
 
 public class Course {
 		private String CourseName;
-		private Course[] prereqs;
+		private LinkedList<Course> preReqs;
 		private float credits;
-		private int arrayPosition;
-		private int Size;
 		private float grade;
 		
+		//Constructor that takes the name of the course and the number of credits
 		public Course(String name, float Credit){
 			CourseName=name;
-			Course[] prereqs = new Course[Size];
-			arrayPosition=0;
 			credits=Credit;
 		}
 		
 		//Set a Course as a prerequisite 
 		public void setPrereq(Course preCourse){
-			prereqs[arrayPosition] = preCourse;
-			arrayPosition++;
+			preReqs.add(preCourse);
 		}
 		
 		//Set the name of the Course
@@ -40,14 +37,17 @@ public class Course {
 			return CourseName;
 		}
 		
-		public int getSize(){
-			return arrayPosition;
+		//Return the size of the array
+		public int numPreReqs(){
+			return preReqs.size();
 		}
 		
+		//Set the grade in the course
 		public void setGrade(float gradenow){
 			grade=gradenow;
-		};
+		}
 		
+		//Return the grade in the course
 		public float getGrade(){
 			return grade;
 		}		
