@@ -1,4 +1,11 @@
+import java.util.Iterator;
 import java.util.LinkedList;
+
+/* 
+ * @author Andrew Keyes 
+ * Keyesandrew@live.com
+ */
+
 public class Module {
 	private LinkedList<Course> ModPrereqs;
 	private int numCredits;
@@ -10,6 +17,8 @@ public class Module {
 	
 	public Module(String nameOfMod){
 		name=nameOfMod;
+		ModPrereqs = new LinkedList<Course>();
+		ModConditionalCoursesPreReq = new LinkedList<ConditionalCourse>();
 	}
 	//Add a conditional course to the list of conditional courses
 	public void addConditionalPreReq(ConditionalCourse addCourse){
@@ -17,8 +26,8 @@ public class Module {
 	}
 	
 	//Return a list of conditional courses
-	public LinkedList<ConditionalCourse> getConditionalPreReq(){
-		return ModConditionalCoursesPreReq;
+	public Iterator<ConditionalCourse> getConditionalPreReq(){
+		return ModConditionalCoursesPreReq.iterator();
 	}
 
 	//Add a course to the list of courses
@@ -27,8 +36,8 @@ public class Module {
 	}
 	
 	//Return a list of courses
-	public LinkedList<Course> getPrereqs(){
-		return ModPrereqs;
+	public Iterator<Course> getPrereqs(){
+		return ModPrereqs.iterator();
 	}
 	
 	//Set the number of credits in this module

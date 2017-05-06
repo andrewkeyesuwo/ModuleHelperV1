@@ -1,4 +1,8 @@
 import java.io.*;
+/* 
+ * @author Andrew Keyes 
+ * Keyesandrew@live.com
+ */
 
 public class ReadModLine {
 	private BufferedInputStream fileIn;
@@ -9,8 +13,8 @@ public class ReadModLine {
 	}
 	
 	public String[] readLine() throws java.io.IOException{
-		String[] arrayOfLine = new String[50];
-		char[] arrayOfWord = new char[256];
+		String[] arrayOfLine = new String[600];
+		char[] arrayOfWord = new char[600];
 		int i = 0;
 		int j=0;
 		char ch = (char) fileIn.read(); 
@@ -23,10 +27,9 @@ public class ReadModLine {
 		while(ch!=System.lineSeparator().charAt(0)){
 			if(ch==' '||ch=='+'){
 				arrayOfLine[i] = new String(arrayOfWord);
-				System.out.println("Added word: " + arrayOfLine[i]);
 				i++;
 				j=0;
-				arrayOfWord = new char[256];
+				arrayOfWord = new char[600];
 			}
 			else{
 				arrayOfWord[j] = ch;
@@ -35,7 +38,6 @@ public class ReadModLine {
 			ch = (char)fileIn.read();
 		}
 		arrayOfLine[i] = new String(arrayOfWord);
-		System.out.println("Added word: " + arrayOfLine[i]);
 		ch = (char)fileIn.read();
 		return arrayOfLine;
 	}

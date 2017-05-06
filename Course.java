@@ -1,5 +1,10 @@
 import java.util.LinkedList;
 
+/* 
+ * @author Andrew Keyes 
+ * Keyesandrew@live.com
+ */
+
 public class Course {
 		private String CourseName;
 		private LinkedList<Course> preReqs;

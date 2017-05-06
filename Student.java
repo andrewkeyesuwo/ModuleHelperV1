@@ -1,6 +1,11 @@
 import java.util.LinkedList;
 import java.util.List;
 
+/* 
+ * @author Andrew Keyes 
+ * Keyesandrew@live.com
+ */
+
 public class Student {
 	float averageGrade;
 	private LinkedList<Course> CourseesTaken;
@@ -17,6 +22,10 @@ public class Student {
 		else{
 			CourseesTaken.add(newCourse);
 		}
+	}
+	
+	public LinkedList<Course> getCourses(){
+		return CourseesTaken;
 	}
 	
 	public boolean removeCourse(Course removeCourse){
