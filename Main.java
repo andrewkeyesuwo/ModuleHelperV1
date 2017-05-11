@@ -1,7 +1,19 @@
 import java.io.*;
 import java.util.Scanner;
+
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.WindowConstants;
+
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 
 /* 
  * @author Andrew Keyes 
@@ -10,25 +22,119 @@ import java.util.LinkedList;
 
 
 public class Main {
-
-	public static void main(String[] args) throws IOException {
+	public static Student person;
+	public static String[][] goodMods = new String[25][1];
+	
+	public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException, InstantiationException, IllegalAccessException, UnsupportedLookAndFeelException {
 		//Load all the possible modules into an array
+		
+		
+		Module[] moduleHolder = addModules();
+		//Ask student for their modules
+		GUI visuals = new GUI();
+		person = visuals.getStudent();
+		
+		while(!visuals.doneAdding()){
+				Thread.sleep(100);
+		}
+		
+		
+		System.out.println("Student entered all courses");
+		
+		//Compare courses to the available modules
+		//If the student has all the modules available then add it to the linked list and return the name
+		Comparator comparethis = new Comparator();
+		LinkedList<Course> studentCoursees = person.getCourses();
+		int i = 0;
+		int b = 0;
+		while(i<5){
+			Module module = moduleHolder[i];
+			boolean fail = false;
+			boolean meetsReqs = true;
+			boolean containCourse=false;
+			float studentModGrade;
+				
+			LinkedList<Course> usedStudCoursees = new LinkedList<Course>();
+				
+			//Compares regular prerequisite courses against the courses that the student has entered.
+			Iterator<Course> preCourses = module.getPrereqs();
+			while(meetsReqs==true&&preCourses.hasNext()){
+				Course preCourse = preCourses.next();
+				int k = 0;
+				//Loops through student courses to check if they meet that prerequisite
+				while(k<studentCoursees.size()){
+					if(comparethis.compare(preCourse.getName(),studentCoursees.get(k).getName())){
+						containCourse=true;
+						usedStudCoursees.add(studentCoursees.get(k));
+					}
+					k++;
+				}
+				if(!containCourse){
+					meetsReqs = false;
+				}
+			}
+			
+			Iterator<ConditionalCourse> preConditionalCourses = module.getConditionalPreReq();
+			while(meetsReqs==true&&preConditionalCourses.hasNext()){
+				ConditionalCourse preConCourse = preConditionalCourses.next();
+				int k = 0;
+				float credits=0;
+				//loop through student courses to check if they meet on of the requirements from the conditional course
+				while(k<studentCoursees.size()){
+					if(comparethis.compare(preConCourse, studentCoursees.get(k))){
+						containCourse=true;
+						credits+=studentCoursees.get(k).getCredits();
+						usedStudCoursees.add(studentCoursees.get(k));
+					}
+					k++;
+				}
+				if(!containCourse||credits<preConCourse.getCredits()){
+					meetsReqs = false;
+				}
+			}
+			
+			boolean gradeReq=true;
+			float sum =0;
+			for(int w=0;w<usedStudCoursees.size();w++){
+				sum+=usedStudCoursees.get(w).getGrade();
+				if(usedStudCoursees.get(w).getGrade()<module.getminGradeRequirement()){
+					gradeReq=false;
+				}
+			}
+			if(sum/usedStudCoursees.size()<module.getGradeRequirement()){
+				gradeReq=false;
+			}
+			
+			if(meetsReqs&&gradeReq){
+				System.out.println("Student average for the module equals "+ sum/usedStudCoursees.size());
+				System.out.println("Student meets the qualifications for "+ module.getName());
+				goodMods[b][0] = module.getName();
+				b++;
+			}
+			i++;
+		}
+		visuals.buildMajorList(goodMods);
+	}
+	
+	public static Module[] addModules(){
+		//Module holder
 		BufferedInputStream mods = null;
+		Module[] moduleHolder = new Module[11];;
+		
 		try{
 			//Open a buffered input stream for the mods list
 			mods  = new BufferedInputStream(new FileInputStream("C:\\Users\\Andrew\\1027B\\ModuleHelper\\src\\ModulesCompSci.txt"));
 			
-			//Module holder
-			Module[] moduleHolder = new Module[11];
-			
 			//Create and add all module
-			for(int j=0;j<11;j++){
+			for(int j=0;j<5;j++){
+				
 				//Read the module line one at a time
 				ReadModLine modslist = new ReadModLine(mods);
 				String[] moduleString = modslist.readLine();
 				Module moduleToAdd = new Module(moduleString[0]);
 				moduleToAdd.setGradeRequirement(Float.parseFloat(moduleString[1]));
 				moduleToAdd.setminGradeRequirement(Float.parseFloat(moduleString[2]));
+				
 				int i=3;
 				while(moduleString[i]!=null){
 					//Check whether or not it is a credit, if it is then begin adding the course
@@ -57,118 +163,9 @@ public class Main {
 				moduleHolder[j] = moduleToAdd;
 			}
 			System.out.println("All modules have been added");
-			
-			//Ask student for their modules
-			Student person = new Student();
-			Scanner reader = new Scanner(System.in);
-			System.out.println("Enter your courses or enter * to end");
-			
-			System.out.print("Enter student course: ");
-			String token = reader.next();
-			while(token.charAt(0)!='*'){
-				person.addCourse(new Course(token, (float) 0.5));
-				System.out.print("Enter student course: ");
-				token = reader.next();
-			}
-			System.out.println("Student entered all courses");
-			
-			//Compare courses to the available modules
-			//If the student has all the modules available then add it to the linked list and return the name
-			LinkedList<Course> studentCoursees = person.getCourses();
-			int i = 0;
-			while(i<11){
-				Module module = moduleHolder[i];
-			
-				boolean fail = false;
-				boolean meetsReqs = true;
-				boolean containCourse=false;
-				
-				//Compares regular prerequisite courses against the courses that the student has entered.
-				Iterator<Course> preCourses = module.getPrereqs();
-				while(meetsReqs==true&&preCourses.hasNext()){
-					Course preCourse = preCourses.next();
-					int k = 0;
-					//Loops through student courses to check if they meet that prerequisite
-					while(k<studentCoursees.size()){
-						if(compare(preCourse.getName(),studentCoursees.get(k).getName())){
-							containCourse=true;
-						}
-						k++;
-					}
-					if(!containCourse){
-						meetsReqs = false;
-					}
-				}
-				
-				Iterator<ConditionalCourse> preConditionalCourses = module.getConditionalPreReq();
-				while(meetsReqs==true&&preConditionalCourses.hasNext()){
-					ConditionalCourse preConCourse = preConditionalCourses.next();
-					int k = 0;
-					float credits=0;
-					//loop through student courses to check if they meet on of the requirements from the conditional course
-					while(k<studentCoursees.size()){
-						if(compareConditional(preConCourse, studentCoursees.get(k))){
-							containCourse=true;
-							credits+=studentCoursees.get(k).getCredits();
-						}
-						k++;
-					}
-					if(!containCourse||credits<preConCourse.getCredits()){
-						meetsReqs = false;
-					}
-				}
-				
-				if(meetsReqs==true){
-					System.out.println("Student meets the qualifications for "+ module.getName());
-				}
-				i++;
-			}
-			
-			
-			
-			
-			
-			
-			
-			
+		}catch(Exception e){
+			e.printStackTrace();
 		}
-		catch(Exception e){
-			System.out.println("There is a problem");
-			System.out.println(e.getMessage());
-		}
-		finally/*catch(Exception e)*/{
-			System.out.println("Finish");
-		}
+		return moduleHolder;
 	}
-	
-	
-	
-	
-	
-	public static boolean compare(String a, String b){
-		a = a.trim();
-		b = b.trim();
-		if(a.length()!=b.length()){
-			return false;
-		}
-		for(int i=0;i<a.length();i++){
-			if(a.charAt(i)!=b.charAt(i)){
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public static boolean compareConditional(ConditionalCourse conCourse, Course studentCourse){
-		Iterator<Course> courses = conCourse.getCourses().listIterator();
-		while(courses.hasNext()){
-			Course course = courses.next();
-			if(compare(course.getName(), studentCourse.getName())){
-				return true;
-			}
-		}
-		return false;
-		
-	}
-
 }
